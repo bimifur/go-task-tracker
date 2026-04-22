@@ -40,8 +40,31 @@ func main() {
 			return
 		}
 
-		for _, t := range tasks {
-			fmt.Printf("[ID: %v] %v (status: %v)\n", t.ID, t.Description, t.Status)
+		if len(os.Args) == 2 {
+			for _, t := range tasks {
+				fmt.Printf("[ID: %v] %v (status: %v)\n", t.ID, t.Description, t.Status)
+			}
+		} else if len(os.Args) == 3 {
+			status := os.Args[2]
+			if !models.IsValidStatus(models.TaskStatus(status)) {
+				fmt.Println("Некорректный статус")
+				fmt.Printf("Возможные статусы:\ntodo\nin-progress\ndone")
+				return
+			}
+
+			tasks, err = service.WithStatus(models.TaskStatus(status))
+			if len(tasks) == 0 {
+				fmt.Printf("Список задач со статусом %v пуст", status)
+				return
+			}
+			if err != nil {
+				fmt.Println("Ошибка: ", err)
+				return
+			}
+
+			for _, t := range tasks {
+				fmt.Printf("[ID: %v] %v (status: %v)\n", t.ID, t.Description, t.Status)
+			}
 		}
 
 	case "update":
@@ -69,7 +92,7 @@ func main() {
 			fmt.Println("Ошибка: ", err)
 			return
 		}
-		fmt.Println("Задача успешно обновлена!")
+		fmt.Printf("Задача успешно обновлена! (ID: %v)", ID)
 
 	case "delete":
 		if len(os.Args) < 3 {

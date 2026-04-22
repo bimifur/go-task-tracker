@@ -79,3 +79,20 @@ func DeleteTask(ID int) error {
 	}
 	return fmt.Errorf("нет такого ID: %v", ID)
 }
+
+func WithStatus(status models.TaskStatus) ([]models.Task, error) {
+	tasks, err := storage.Load()
+	if err != nil {
+		return nil, err
+	}
+
+	var statusTasks []models.Task
+
+	for i, t := range tasks {
+		if t.Status == status {
+			statusTasks = append(statusTasks, tasks[i])
+		}
+	}
+
+	return statusTasks, nil
+}
